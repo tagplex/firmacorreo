@@ -111,9 +111,17 @@ document.getElementById("signatureForm").addEventListener("input", function (e) 
         alert("El teléfono solo puede contener números, paréntesis, guiones y espacios.");
         phone.value = phone.value.replace(/[^0-9()\-\s]/g, ""); // Elimina caracteres no permitidos
     }
+});
 
-    // Validación de Correo (HTML5 lo maneja, pero puedes agregar validaciones adicionales)
-    if (email.validity.typeMismatch) {
-        alert("Por favor, ingresa un correo válido.");
+// Validación del correo cuando el usuario termina de escribir
+document.getElementById("email").addEventListener("blur", function () {
+    const email = document.getElementById("email");
+    const errorMessage = document.getElementById("emailError");
+
+    // Verifica si el correo es válido
+    if (email.value.trim() !== "" && email.validity.typeMismatch) {
+        errorMessage.textContent = "Por favor, ingresa un correo válido.";
+    } else {
+        errorMessage.textContent = ""; // Limpia el mensaje si es válido
     }
 });
