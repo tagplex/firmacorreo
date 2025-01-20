@@ -1,14 +1,21 @@
-// Referencia al canvas y contexto
+// Resolución del canvas (2x las dimensiones visuales)
 const canvas = document.getElementById("signatureCanvas");
 const ctx = canvas.getContext("2d");
+const scale = 2; // Factor de escala para aumentar resolución
+canvas.width = 600 * scale; // Duplicar ancho
+canvas.height = 180 * scale; // Duplicar alto
+
+// Ajustar tamaño visual del canvas
+canvas.style.width = "600px";
+canvas.style.height = "180px";
 
 // Crear la imagen base
 const baseImage = new Image();
-baseImage.src = "./formato_firma.png"; // Ruta local de la imagen base
+baseImage.src = "./firma_original.jpg"; // Ruta local de la imagen base
 
 // Cargar la imagen base al cargar la página
 baseImage.onload = () => {
-    renderSignature(); // Dibujar la imagen al cargar
+    renderSignature();
 };
 
 // Función para dibujar la firma en el canvas
@@ -28,24 +35,24 @@ function renderSignature() {
     // Configuración específica para cada campo
     const styles = {
         name: {
-            font: "bold 18px Arial", // Fuente y tamaño
-            color: "#6e2c00", // Color
-            position: { x: canvas.width - 210, y: 60 }, // Posición
+            font: "bold 40px 'Montserrat', sans-serif", // Fuente y tamaño
+            color: "#562b16", // Color
+            position: { x: canvas.width - 420, y: 100 }, // Posición
         },
         position: {
-            font: "bold 14px Arial",
-            color: "#6e2c00",
-            position: { x: canvas.width - 210, y: 75 },
+            font: "30px 'Montserrat', sans-serif",
+            color: "#562b16",
+            position: { x: canvas.width - 420, y: 135 },
         },
         phone: {
-            font: "bold 12px Arial",
-            color: "#6e2c00",
-            position: { x: canvas.width - 220, y: 105 },
+            font: "bold 25px 'Montserrat', sans-serif",
+            color: "#562b16",
+            position: { x: canvas.width - 467, y: 190 },
         },
         email: {
-            font: "bold 12px Arial",
-            color: "#6e2c00",
-            position: { x: canvas.width - 220, y: 127 },
+            font: "bold 25px 'Montserrat', sans-serif",
+            color: "#562b16",
+            position: { x: canvas.width - 467, y: 230 },
         },
     };
 
@@ -55,6 +62,22 @@ function renderSignature() {
         ctx.fillStyle = styles.name.color;
         ctx.textAlign = "right";
         ctx.fillText(name, styles.name.position.x, styles.name.position.y);
+
+        // Dibujar línea de subrayado debajo del nombre
+        const textWidth = ctx.measureText(name).width; // Ancho del texto
+        const underlineOffset = 5; // Espacio entre el texto y la línea
+        ctx.beginPath();
+        ctx.moveTo(
+            styles.name.position.x - textWidth,
+            styles.name.position.y + underlineOffset
+        ); // Inicio de la línea
+        ctx.lineTo(
+            styles.name.position.x,
+            styles.name.position.y + underlineOffset
+        ); // Fin de la línea
+        ctx.lineWidth = 2; // Grosor de la línea
+        ctx.strokeStyle = styles.name.color; // Color de la línea
+        ctx.stroke();
     }
 
     if (position) {
@@ -85,7 +108,6 @@ function renderSignature() {
     downloadLink.download = "firma.png"; // Nombre del archivo
 }
 
-
 // Agregar eventos al formulario para renderizar en tiempo real
 document.getElementById("signatureForm").addEventListener("input", renderSignature);
 
@@ -96,18 +118,18 @@ document.getElementById("signatureForm").addEventListener("input", function (e) 
     const email = document.getElementById("email");
 
     // Validación de Nombre y Cargo (máximo 30 caracteres)
-    if (name.value.length > 30) {
-        alert("El nombre no puede tener más de 30 caracteres.");
-        name.value = name.value.substring(0, 30);
+    if (name.value.length > 25) {
+        alert("El nombre no puede tener más de 25 caracteres.");
+        name.value = name.value.substring(0, 25);
     }
 
-    if (position.value.length > 30) {
-        alert("El cargo no puede tener más de 30 caracteres.");
-        position.value = position.value.substring(0, 30);
+    if (position.value.length > 22) {
+        alert("El cargo no puede tener más de 22 caracteres.");
+        position.value = position.value.substring(0, 22);
     }
 
-     // Validación de Teléfono (números, paréntesis, guiones y espacios)
-     if (!/^[0-9()\-\s]*$/.test(phone.value)) {
+    // Validación de Teléfono (números, paréntesis, guiones y espacios)
+    if (!/^[0-9()\-\s]*$/.test(phone.value)) {
         alert("El teléfono solo puede contener números, paréntesis, guiones y espacios.");
         phone.value = phone.value.replace(/[^0-9()\-\s]/g, ""); // Elimina caracteres no permitidos
     }

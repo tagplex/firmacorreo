@@ -4,17 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generador de Pie de Firma</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Generador de Pie de Firma</h1>
+        <h1>Generador de firma para correo</h1>
         <form id="signatureForm">
             <label for="name">Nombre:</label>
-            <input type="text" id="name" placeholder="Nombre" maxlength="30" required>
+            <input type="text" id="name" placeholder="Nombre" maxlength="25" required>
 
-            <label for="position">Cargo:</label>
-            <input type="text" id="position" placeholder="Cargo" maxlength="30" required>
+            <label for="position">Cargo - Unidad:</label>
+            <input type="text" id="position" placeholder="Cargo y/o unidad" maxlength="22" required>
 
             <label for="phone">Teléfono:</label>
             <input type="text" id="phone" placeholder="Teléfono" pattern="[0-9()\-\s]+" required>
@@ -28,4 +29,5 @@
     </div>
     <script src="signature.js"></script>
 </body>
+<footer>Desarrollado por Kevin Palma Contreras</footer>
 </html>
