@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Pie de Firma</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Generador de Pie de Firma</h1>
+        <form id="signatureForm">
+            <label for="name">Nombre:</label>
+            <input type="text" id="name" placeholder="Nombre" maxlength="30" required>
+
+            <label for="position">Cargo:</label>
+            <input type="text" id="position" placeholder="Cargo" maxlength="30" required>
+
+            <label for="phone">Teléfono:</label>
+            <input type="text" id="phone" placeholder="Teléfono" pattern="[0-9()\-\s]+" required>
+
+            <label for="email">Correo:</label>
+            <input type="email" id="email" placeholder="Correo" required>
+        </form>
+
+        <canvas id="signatureCanvas" width="600" height="200"></canvas>
+        <a id="downloadLink">Descargar Firma</a>
+    </div>
+    <script src="signature.js"></script>
+</body>
+</html>
