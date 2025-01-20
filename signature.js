@@ -118,14 +118,14 @@ document.getElementById("signatureForm").addEventListener("input", function (e) 
     const email = document.getElementById("email");
 
     // Validación de Nombre y Cargo (máximo 30 caracteres)
-    if (name.value.length > 25) {
-        alert("El nombre no puede tener más de 25 caracteres.");
-        name.value = name.value.substring(0, 25);
+    if (name.value.length > 28) {
+        alert("El nombre no puede tener más de 28 caracteres.");
+        name.value = name.value.substring(0, 28);
     }
 
-    if (position.value.length > 22) {
+    if (position.value.length > 30) {
         alert("El cargo no puede tener más de 22 caracteres.");
-        position.value = position.value.substring(0, 22);
+        position.value = position.value.substring(0, 30);
     }
 
     // Validación de Teléfono (números, paréntesis, guiones y espacios)
