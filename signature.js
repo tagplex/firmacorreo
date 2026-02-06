@@ -1,82 +1,136 @@
-// Resolución del canvas (2x las dimensiones visuales)
+// Resolución del canvas
 const canvas = document.getElementById("signatureCanvas");
 const ctx = canvas.getContext("2d");
-const scale = 2; // Factor de escala para aumentar resolución
-canvas.width = 600 * scale; // Duplicar ancho
-canvas.height = 180 * scale; // Duplicar alto
+const scale = 1;
+canvas.width = 550 * scale;
+canvas.height = 165 * scale;
+canvas.style.width = "550px";
+canvas.style.height = "165px";
 
-// Ajustar tamaño visual del canvas
-canvas.style.width = "600px";
-canvas.style.height = "180px";
+// Imágenes para I. Municipalidad de Quemchi
+const baseImageMuni = new Image();
+baseImageMuni.src = "./firma_original.jpg";
 
-// Crear la imagen base
-const baseImage = new Image();
-baseImage.src = "./firma_original.jpg"; // Ruta local de la imagen base
+const baseImageMuniNoPhone = new Image();
+baseImageMuniNoPhone.src = "./firma_original_sintelefono.jpg";
 
-// Cargar la imagen base al cargar la página
-baseImage.onload = () => {
-    renderSignature();
+// Imágenes para otras instituciones (Salud)
+const baseImageSalud = new Image();
+baseImageSalud.src = "./firma_original_s.jpg";
+
+const baseImageSaludNoPhone = new Image();
+baseImageSaludNoPhone.src = "./firma_original_sintelefono_s.jpg";
+
+let imagesLoaded = 0;
+const checkImagesLoaded = () => {
+    imagesLoaded++;
+    if (imagesLoaded === 4) {
+        renderSignature();
+    }
 };
 
-// Función para dibujar la firma en el canvas
+baseImageMuni.onload = checkImagesLoaded;
+baseImageMuniNoPhone.onload = checkImagesLoaded;
+baseImageSalud.onload = checkImagesLoaded;
+baseImageSaludNoPhone.onload = checkImagesLoaded;
+
+const noPhoneCheckbox = document.getElementById("noPhone");
+const phoneGroup = document.getElementById("phoneGroup");
+noPhoneCheckbox.addEventListener("change", () => {
+    if (noPhoneCheckbox.checked) {
+        phoneGroup.style.display = "none";
+        document.getElementById("phone").value = "";
+    } else {
+        phoneGroup.style.display = "flex";
+    }
+    renderSignature();
+});
+
 function renderSignature() {
-    // Limpiar el canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Dibujar la imagen base
-    ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+    // Determinar qué imagen usar según la institución y el checkbox
+    const institution = document.getElementById("institution").value;
+    const isMunicipalidad = institution === "I. Municipalidad de Quemchi" || institution === "";
 
-    // Obtener los valores de los campos
+    let imageToUse;
+    if (isMunicipalidad) {
+        imageToUse = noPhoneCheckbox.checked ? baseImageMuniNoPhone : baseImageMuni;
+    } else {
+        imageToUse = noPhoneCheckbox.checked ? baseImageSaludNoPhone : baseImageSalud;
+    }
+
+    ctx.drawImage(imageToUse, 0, 0, canvas.width, canvas.height);
+
     const name = document.getElementById("name").value;
     const position = document.getElementById("position").value;
     const phone = document.getElementById("phone").value;
     const email = document.getElementById("email").value;
 
-    // Configuración específica para cada campo
     const styles = {
         name: {
-            font: "bold 40px 'Montserrat', sans-serif", // Fuente y tamaño
-            color: "#562b16", // Color
-            position: { x: canvas.width - 420, y: 100 }, // Posición
+            font: "bold 18.5px 'Montserrat', sans-serif",
+            color: "#562b16",
+            position: { x: canvas.width - 192.5, y: 36 },
         },
         position: {
-            font: "30px 'Montserrat', sans-serif",
+            font: "12px 'Montserrat', sans-serif",
             color: "#562b16",
-            position: { x: canvas.width - 420, y: 135 },
+            position: { x: canvas.width - 192.5, y: 53 },
+        },
+        institution: {
+            font: "12px 'Montserrat', sans-serif",
+            color: "#562b16",
+            position: { x: canvas.width - 192.5, y: 68 },
         },
         phone: {
-            font: "bold 25px 'Montserrat', sans-serif",
+            font: "bold 11.5px 'Montserrat', sans-serif",
             color: "#562b16",
-            position: { x: canvas.width - 467, y: 190 },
+            position: { x: canvas.width - 214.5, y: 87 },
         },
         email: {
-            font: "bold 25px 'Montserrat', sans-serif",
+            font: "bold 11.5px 'Montserrat', sans-serif",
             color: "#562b16",
-            position: { x: canvas.width - 467, y: 230 },
+            position: {
+                x: canvas.width - 214.5,
+                y: noPhoneCheckbox.checked ? (institution ? 87 : 87) : 106, // Ajustar según teléfono
+            },
         },
     };
 
-    // Dibujar cada campo con su estilo independiente
     if (name) {
-        ctx.font = styles.name.font;
+        // Dividir el nombre en primer nombre y resto
+        const spaceIndex = name.indexOf(' ');
+        const firstName = spaceIndex !== -1 ? name.substring(0, spaceIndex) : name;
+        const restOfName = spaceIndex !== -1 ? name.substring(spaceIndex) : '';
+
         ctx.fillStyle = styles.name.color;
         ctx.textAlign = "right";
-        ctx.fillText(name, styles.name.position.x, styles.name.position.y);
 
-        // Dibujar línea de subrayado debajo del nombre
-        const textWidth = ctx.measureText(name).width; // Ancho del texto
-        const underlineOffset = 5; // Espacio entre el texto y la línea
+        // Medir el ancho total del texto
+        ctx.font = styles.name.font;
+        const firstNameWidth = ctx.measureText(firstName).width;
+        ctx.font = "18.5px 'Montserrat', sans-serif"; // Fuente normal para el resto
+        const restNameWidth = restOfName ? ctx.measureText(restOfName).width : 0;
+        const totalWidth = firstNameWidth + restNameWidth;
+
+        // Dibujar el resto del nombre (fuente normal)
+        if (restOfName) {
+            ctx.font = "18.5px 'Montserrat', sans-serif";
+            ctx.fillText(restOfName, styles.name.position.x, styles.name.position.y);
+        }
+
+        // Dibujar el primer nombre en negrita (después, para que quede a la izquierda del resto)
+        ctx.font = styles.name.font;
+        ctx.fillText(firstName, styles.name.position.x - restNameWidth, styles.name.position.y);
+
+        // Subrayar todo el nombre
+        const underlineOffset = 2.2;
         ctx.beginPath();
-        ctx.moveTo(
-            styles.name.position.x - textWidth,
-            styles.name.position.y + underlineOffset
-        ); // Inicio de la línea
-        ctx.lineTo(
-            styles.name.position.x,
-            styles.name.position.y + underlineOffset
-        ); // Fin de la línea
-        ctx.lineWidth = 2; // Grosor de la línea
-        ctx.strokeStyle = styles.name.color; // Color de la línea
+        ctx.moveTo(styles.name.position.x - totalWidth, styles.name.position.y + underlineOffset);
+        ctx.lineTo(styles.name.position.x, styles.name.position.y + underlineOffset);
+        ctx.lineWidth = 0.9;
+        ctx.strokeStyle = styles.name.color;
         ctx.stroke();
     }
 
@@ -87,7 +141,16 @@ function renderSignature() {
         ctx.fillText(position, styles.position.position.x, styles.position.position.y);
     }
 
-    if (phone) {
+    // Dibujar institución (siempre, si está seleccionada)
+    if (institution) {
+        ctx.font = styles.institution.font;
+        ctx.fillStyle = styles.institution.color;
+        ctx.textAlign = "right";
+        ctx.fillText(institution, styles.institution.position.x, styles.institution.position.y);
+    }
+
+    // Dibujar número de teléfono (solo si no está marcado el checkbox)
+    if (!noPhoneCheckbox.checked && phone) {
         ctx.font = styles.phone.font;
         ctx.fillStyle = styles.phone.color;
         ctx.textAlign = "right";
@@ -101,14 +164,126 @@ function renderSignature() {
         ctx.fillText(email, styles.email.position.x, styles.email.position.y);
     }
 
-    // Actualizar el enlace de descarga
     const downloadLink = document.getElementById("downloadLink");
-    const imageUrl = canvas.toDataURL("image/png"); // Convertir canvas a imagen PNG
-    downloadLink.href = imageUrl; // Establecer la URL del enlace
-    downloadLink.download = "firma.png"; // Nombre del archivo
+    const imageUrl = canvas.toDataURL("image/png");
+    downloadLink.href = imageUrl;
+    downloadLink.download = "firma.png";
 }
 
-// Agregar eventos al formulario para renderizar en tiempo real
+// Función para generar firma HTML con enlaces clickeables
+function generateHtmlSignature(name, position, institution, phone, email) {
+    // Convertir la imagen actual del canvas a base64
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+
+    // Determinar qué imagen usar según la institución y el checkbox
+    const isMunicipalidad = institution === "I. Municipalidad de Quemchi" || institution === "";
+    let imageToUse;
+    if (isMunicipalidad) {
+        imageToUse = noPhoneCheckbox.checked ? baseImageMuniNoPhone : baseImageMuni;
+    } else {
+        imageToUse = noPhoneCheckbox.checked ? baseImageSaludNoPhone : baseImageSalud;
+    }
+
+    // Dibujar solo la imagen de fondo
+    tempCtx.drawImage(imageToUse, 0, 0, tempCanvas.width, tempCanvas.height);
+    const imageBase64 = tempCanvas.toDataURL('image/jpeg', 0.9);
+
+    const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Montserrat', Arial, sans-serif; margin: 0; padding: 0; }
+        .signature {
+            position: relative;
+            width: 600px;
+            height: 180px;
+            background-image: url('${imageBase64}');
+            background-size: cover;
+        }
+        .signature-text {
+            position: absolute;
+            right: 180px;
+            top: 40px;
+            text-align: right;
+            color: #562b16;
+        }
+        .name { font-size: 40px; font-weight: bold; text-decoration: underline; }
+        .position { font-size: 30px; font-weight: bold; margin-top: 5px; }
+        .institution { font-size: 30px; font-weight: bold; margin-top: 15px; }
+        .contact { position: absolute; right: 133px; bottom: ${noPhoneCheckbox.checked ? '50px' : '10px'}; text-align: right; color: #562b16; }
+        .contact a { color: #562b16; text-decoration: none; font-weight: bold; font-size: 25px; display: block; }
+        .contact a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="signature">
+        <div class="signature-text">
+            <div class="name">${name || ''}</div>
+            <div class="position">${position || ''}</div>
+            <div class="institution">${institution || ''}</div>
+        </div>
+        <div class="contact">
+            ${!noPhoneCheckbox.checked && phone ? `<a href="tel:${phone}">${phone}</a>` : ''}
+            ${email ? `<a href="mailto:${email}">${email}</a>` : ''}
+        </div>
+    </div>
+</body>
+</html>`;
+
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+
+    const downloadHtmlLink = document.getElementById("downloadHtmlLink");
+    downloadHtmlLink.href = url;
+    downloadHtmlLink.download = "firma.html";
+}
+
+// Función para capitalizar la primera letra de cada palabra
+function capitalizeWords(str) {
+    // Palabras que no deben capitalizarse (excepto al inicio)
+    const lowercaseWords = ['de', 'del', 'la', 'el', 'los', 'las', 'y', 'e', 'en', 'a', 'al', 'con', 'por', 'para', 'sin'];
+
+    return str.toLowerCase().replace(/(^|\s)(\S+)/g, function(match, space, word) {
+        // Siempre capitalizar la primera palabra
+        if (space === '') {
+            return word.charAt(0).toUpperCase() + word.slice(1);
+        }
+        // No capitalizar palabras comunes (de, del, la, etc.)
+        if (lowercaseWords.includes(word.toLowerCase())) {
+            return space + word.toLowerCase();
+        }
+        // Capitalizar otras palabras
+        return space + word.charAt(0).toUpperCase() + word.slice(1);
+    });
+}
+
+// Capitalizar automáticamente en los campos nombre y cargo
+document.getElementById("name").addEventListener("input", function(e) {
+    const cursorPos = this.selectionStart;
+    const value = this.value;
+    const capitalizedValue = capitalizeWords(value);
+
+    if (value !== capitalizedValue) {
+        this.value = capitalizedValue;
+        this.setSelectionRange(cursorPos, cursorPos);
+    }
+});
+
+document.getElementById("position").addEventListener("input", function(e) {
+    const cursorPos = this.selectionStart;
+    const value = this.value;
+    const capitalizedValue = capitalizeWords(value);
+
+    if (value !== capitalizedValue) {
+        this.value = capitalizedValue;
+        this.setSelectionRange(cursorPos, cursorPos);
+    }
+});
+
 document.getElementById("signatureForm").addEventListener("input", renderSignature);
 
 document.getElementById("signatureForm").addEventListener("input", function (e) {
@@ -117,33 +292,29 @@ document.getElementById("signatureForm").addEventListener("input", function (e) 
     const phone = document.getElementById("phone");
     const email = document.getElementById("email");
 
-    // Validación de Nombre y Cargo (máximo 30 caracteres)
-    if (name.value.length > 28) {
-        alert("El nombre no puede tener más de 28 caracteres.");
-        name.value = name.value.substring(0, 28);
+    if (name.value.length > 30) {
+        alert("El nombre no puede tener más de 30 caracteres.");
+        name.value = name.value.substring(0, 30);
     }
 
-    if (position.value.length > 30) {
-        alert("El cargo no puede tener más de 22 caracteres.");
-        position.value = position.value.substring(0, 30);
+    if (position.value.length > 60) {
+        alert("El cargo no puede tener más de 60 caracteres.");
+        position.value = position.value.substring(0, 60);
     }
 
-    // Validación de Teléfono (números, paréntesis, guiones y espacios)
     if (!/^[0-9()\-\s]*$/.test(phone.value)) {
         alert("El teléfono solo puede contener números, paréntesis, guiones y espacios.");
-        phone.value = phone.value.replace(/[^0-9()\-\s]/g, ""); // Elimina caracteres no permitidos
+        phone.value = phone.value.replace(/[^0-9()\-\s]/g, "");
     }
 });
 
-// Validación del correo cuando el usuario termina de escribir
 document.getElementById("email").addEventListener("blur", function () {
     const email = document.getElementById("email");
     const errorMessage = document.getElementById("emailError");
 
-    // Verifica si el correo es válido
     if (email.value.trim() !== "" && email.validity.typeMismatch) {
         errorMessage.textContent = "Por favor, ingresa un correo válido.";
     } else {
-        errorMessage.textContent = ""; // Limpia el mensaje si es válido
+        errorMessage.textContent = "";
     }
 });

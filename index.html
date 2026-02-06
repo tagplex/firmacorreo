@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,7 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-42S08H8GX7"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+        function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
 
         gtag('config', 'G-42S08H8GX7');
@@ -16,27 +17,53 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="container">
         <h1>Generador de firma para correo</h1>
         <form id="signatureForm">
             <label for="name">Nombre:</label>
-            <input type="text" id="name" placeholder="Nombre" maxlength="28" required>
+            <input type="text" id="name" placeholder="Nombre" maxlength="30" required>
 
             <label for="position">Cargo - Unidad:</label>
-            <input type="text" id="position" placeholder="Cargo y/o unidad" maxlength="30" required>
+            <input type="text" id="position" placeholder="Cargo y/o unidad" maxlength="60" required>
 
-            <label for="phone">Teléfono:</label>
-            <input type="text" id="phone" placeholder="Teléfono" pattern="[0-9()\-\s]+" required>
+            <label for="institution">Institución:</label>
+            <select id="institution" required>
+                <option value="">Seleccionar institución</option>
+                <option value="I. Municipalidad de Quemchi">I. Municipalidad de Quemchi</option>
+                <option value="Dpto. de Salud Municipal Quemchi">Dpto. de Salud Municipal Quemchi</option>
+                <option value="Cesfam Quemchi">Cesfam Quemchi</option>
+                <option value="Posta de Salud Rural Lliuco">Posta de Salud Rural Lliuco</option>
+                <option value="Posta de Salud Rural Morrolobos">Posta de Salud Rural Morrolobos</option>
+                <option value="Posta de Salud Rural Quinterquén">Posta de Salud Rural Quinterquén</option>
+                <option value="Posta de Salud Rural Montemar">Posta de Salud Rural Montemar</option>
+                <option value="Posta de Salud Rural Quicaví">Posta de Salud Rural Quicaví</option>
+                <option value="Posta de Salud Rural Mechuque">Posta de Salud Rural Mechuque</option>
+                <option value="Posta de Salud Rural Tac">Posta de Salud Rural Tac</option>
+                <option value="Posta de Salud Rural Voigue">Posta de Salud Rural Voigue</option>
+                <option value="CECOSF Metahue">CECOSF Metahue</option>
+            </select>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="noPhone">
+                <label for="noPhone">No incluir teléfono en la firma</label>
+            </div>
+
+            <div id="phoneGroup">
+                <label for="phone">Teléfono:</label>
+                <input type="text" id="phone" placeholder="Teléfono" pattern="[0-9()\-\s]+" required>
+            </div>
 
             <label for="email">Correo:</label>
             <input type="email" id="email" placeholder="Correo" required>
         </form>
 
         <canvas id="signatureCanvas" width="600" height="200"></canvas>
-        <a id="downloadLink">Descargar Firma</a>
+        <a id="downloadLink">Descargar PNG</a>
     </div>
     <script src="signature.js"></script>
 </body>
 <footer>Desarrollado por Kevin Palma Contreras</footer>
+
 </html>
