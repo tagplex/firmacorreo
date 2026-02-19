@@ -3,6 +3,8 @@ const canvas = document.getElementById("signatureCanvas");
 const ctx = canvas.getContext("2d");
 const LOGICAL_WIDTH = 550;
 const LOGICAL_HEIGHT = 165;
+const DL_WIDTH = 620;
+const DL_HEIGHT = Math.round(DL_WIDTH * LOGICAL_HEIGHT / LOGICAL_WIDTH); // 210
 const scale = window.devicePixelRatio || 1;
 canvas.width = LOGICAL_WIDTH * scale;
 canvas.height = LOGICAL_HEIGHT * scale;
@@ -38,9 +40,9 @@ const LOGO_SALUD_X = LOGICAL_WIDTH - LOGO_SALUD_WIDTH - 43; // centrado en panel
 
 // Reduce una imagen en pasos del 50% hasta el tamaño objetivo.
 // Produce mejor nitidez que un único drawImage de grande a pequeño.
-function prescaleImage(img) {
-    const targetW = LOGICAL_WIDTH;
-    const targetH = LOGICAL_HEIGHT;
+function prescaleImage(img, targetW, targetH) {
+    targetW = targetW || LOGICAL_WIDTH;
+    targetH = targetH || LOGICAL_HEIGHT;
     const srcW = img.naturalWidth || targetW;
     const srcH = img.naturalHeight || targetH;
 
@@ -70,6 +72,8 @@ function prescaleImage(img) {
 
 let prescaledBase = null;
 let prescaledBaseNoPhone = null;
+let prescaledBaseDL = null;
+let prescaledBaseNoPhoneDL = null;
 
 let imagesLoaded = 0;
 const checkImagesLoaded = () => {
@@ -77,6 +81,8 @@ const checkImagesLoaded = () => {
     if (imagesLoaded === 4) {
         prescaledBase = prescaleImage(baseImage);
         prescaledBaseNoPhone = prescaleImage(baseImageNoPhone);
+        prescaledBaseDL = prescaleImage(baseImage, DL_WIDTH, DL_HEIGHT);
+        prescaledBaseNoPhoneDL = prescaleImage(baseImageNoPhone, DL_WIDTH, DL_HEIGHT);
         renderSignature();
     }
 };
@@ -247,14 +253,17 @@ function renderSignature() {
     ctx.clearRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     drawSignatureContent(ctx, imageToUse);
 
-    // --- Canvas de descarga al mismo tamaño lógico (550×165) ---
+    // --- Canvas de descarga a 700×210 px ---
+    const dlImage = noPhoneCheckbox.checked ? prescaledBaseNoPhoneDL : prescaledBaseDL;
+    const dlScale = DL_WIDTH / LOGICAL_WIDTH;
     const dlCanvas = document.createElement('canvas');
-    dlCanvas.width = LOGICAL_WIDTH;
-    dlCanvas.height = LOGICAL_HEIGHT;
+    dlCanvas.width = DL_WIDTH;
+    dlCanvas.height = DL_HEIGHT;
     const dlCtx = dlCanvas.getContext('2d');
     dlCtx.imageSmoothingEnabled = true;
     dlCtx.imageSmoothingQuality = 'high';
-    drawSignatureContent(dlCtx, imageToUse);
+    dlCtx.scale(dlScale, dlScale);
+    drawSignatureContent(dlCtx, dlImage);
 
     const downloadLink = document.getElementById("downloadLink");
     downloadLink.href = dlCanvas.toDataURL("image/png");
@@ -393,3 +402,4 @@ document.getElementById("email").addEventListener("blur", function () {
         errorMessage.textContent = "";
     }
 });
+
