@@ -36,10 +36,47 @@ logoSalud.src = "./logo_salud.png";
 const LOGO_SALUD_WIDTH = 95;
 const LOGO_SALUD_X = LOGICAL_WIDTH - LOGO_SALUD_WIDTH - 43; // centrado en panel derecho
 
+// Reduce una imagen en pasos del 50% hasta el tamaño objetivo.
+// Produce mejor nitidez que un único drawImage de grande a pequeño.
+function prescaleImage(img) {
+    const targetW = LOGICAL_WIDTH;
+    const targetH = LOGICAL_HEIGHT;
+    const srcW = img.naturalWidth || targetW;
+    const srcH = img.naturalHeight || targetH;
+
+    // Si la imagen no es significativamente más grande, no hay ganancia
+    if (srcW <= targetW * 1.5) return img;
+
+    let canvas = document.createElement('canvas');
+    canvas.width = srcW;
+    canvas.height = srcH;
+    canvas.getContext('2d').drawImage(img, 0, 0);
+
+    // Reducir a la mitad repetidamente hasta quedar a un paso del tamaño final
+    while (canvas.width > targetW * 1.5) {
+        const nextW = Math.max(Math.round(canvas.width / 2), targetW);
+        const nextH = Math.max(Math.round(canvas.height / 2), targetH);
+        const tmp = document.createElement('canvas');
+        tmp.width = nextW;
+        tmp.height = nextH;
+        const tmpCtx = tmp.getContext('2d');
+        tmpCtx.imageSmoothingEnabled = true;
+        tmpCtx.imageSmoothingQuality = 'high';
+        tmpCtx.drawImage(canvas, 0, 0, nextW, nextH);
+        canvas = tmp;
+    }
+    return canvas;
+}
+
+let prescaledBase = null;
+let prescaledBaseNoPhone = null;
+
 let imagesLoaded = 0;
 const checkImagesLoaded = () => {
     imagesLoaded++;
     if (imagesLoaded === 4) {
+        prescaledBase = prescaleImage(baseImage);
+        prescaledBaseNoPhone = prescaleImage(baseImageNoPhone);
         renderSignature();
     }
 };
@@ -62,7 +99,10 @@ noPhoneCheckbox.addEventListener("change", () => {
 });
 
 function getCurrentImage() {
-    return noPhoneCheckbox.checked ? baseImageNoPhone : baseImage;
+    if (noPhoneCheckbox.checked) {
+        return prescaledBaseNoPhone || baseImageNoPhone;
+    }
+    return prescaledBase || baseImage;
 }
 
 // Dibuja el contenido de la firma sobre cualquier contexto.
@@ -207,8 +247,7 @@ function renderSignature() {
     ctx.clearRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     drawSignatureContent(ctx, imageToUse);
 
-    // --- Canvas de descarga a resolución óptima para Gmail (550px = ancho estándar de email) ---
-    // El JPG fuente (alta resolución) se reduce a 550px con alta calidad → sin pixelación
+    // --- Canvas de descarga al mismo tamaño lógico (550×165) ---
     const dlCanvas = document.createElement('canvas');
     dlCanvas.width = LOGICAL_WIDTH;
     dlCanvas.height = LOGICAL_HEIGHT;
